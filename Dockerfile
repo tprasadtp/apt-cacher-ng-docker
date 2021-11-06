@@ -59,7 +59,7 @@ RUN --mount=type=tmpfs,target=/downloads/ \
     && chmod +x /downloads/s6-overlay-installer \
     && /downloads/s6-overlay-installer /
 
-RUN printf "## DOCKER MOD ##\nPassThroughPattern: .*\nVerboseLog: 1\nPort:3142\nForeground: 1" | tee -a /etc/apt-cacher-ng/acng.conf
+RUN /bin/bash -eo pipefail -c 'printf "## DOCKER MOD ##\nPassThroughPattern: .*\nVerboseLog: 1\nPort:3142\nForeground: 1" | tee -a /etc/apt-cacher-ng/acng.conf'
 COPY --chown=root:root --chmod=0755 root/etc /etc
 COPY --chown=root:root --chmod=0755 root/usr/bin /usr/bin
 
