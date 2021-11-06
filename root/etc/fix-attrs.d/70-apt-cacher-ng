@@ -1,0 +1,2 @@
+/var/run/apt-cacher-ng true apt-cacher-ng 0640 0750
+/var/log/apt-cacher-ng true apt-cacher-ng 0644 0755

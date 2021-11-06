@@ -1,0 +1,2 @@
+#!/bin/bash
+wget -q -t1 -O /dev/null  http://localhost/acng-report.html || exit 1

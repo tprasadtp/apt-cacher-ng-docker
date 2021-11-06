@@ -1,0 +1,163 @@
+# This is goreleaser template.
+project_name: apt-cacher-ng
+
+# Snapshot Template
+snapshot:
+  name_template: "{{.ShortCommit}}-dev"
+
+# Skip builds
+builds:
+  - skip: true
+# Build docker images
+dockers:
+  # amd64 image
+  - image_templates:
+      # GHCR Images
+      - 'ghcr.io/tprasadtp/{{ .ProjectName }}:{{ .Version }}-amd64'
+      - 'ghcr.io/tprasadtp/{{ .ProjectName }}:{{ .FullCommit }}-amd64'
+
+    build_flag_templates:
+      - --build-arg=VERSION={{ .Version }}
+      - --label=org.opencontainers.image.created={{.Date}}
+      - --label=org.opencontainers.image.revision={{.FullCommit}}
+      - --label=org.opencontainers.image.version={{.Version}}
+      # Vendor
+      - --label=org.opencontainers.image.vendor="Prasad Tengse <tprasadtp@users.noreply.github.com>"
+      # Populated from Makefile Env
+      # We do not use GitURL because it might be SSH.
+      - --label=org.opencontainers.image.source={{.Env.PROJECT_SOURCE}}
+      - --label=org.opencontainers.image.title={{.Env.PROJECT_TITLE}}
+      - --label=org.opencontainers.image.description={{.Env.PROJECT_DESC}}
+      - --label=org.opencontainers.image.documentation={{.Env.PROJECT_URL}}
+      - --label=org.opencontainers.image.licenses={{.Env.PROJECT_LICENSE}}
+      - --label=org.opencontainers.image.url={{.Env.DOCKER_IMAGE_URL}}
+      # Custom Metadata
+      - --label=io.github.tprasadtp.metadata.version=6
+      # Build system Info. Useful to trace flaky builds on build machines
+      - --label=io.github.tprasadtp.metadata.build.system={{.Env.BUILD_SYSTEM }}-release
+      - --label=io.github.tprasadtp.metadata.build.number={{.Env.BUILD_NUMBER }}
+      - --label=io.github.tprasadtp.metadata.build.host={{.Env.BUILD_HOST }}
+      # Git Info
+      - --label=io.github.tprasadtp.metadata.git.commit={{.FullCommit}}
+      - --label=io.github.tprasadtp.metadata.git.branch={{.Branch }}
+      - --label=io.github.tprasadtp.metadata.git.treeState={{.Env.GIT_TREE_STATE}}
+      # Platform
+      - --platform=linux/amd64
+
+    <<: &docker_defaults
+      dockerfile: Dockerfile
+      use: buildx
+      extra_files:
+        - root/usr/bin/healthcheck
+        - root/etc/fix-attrs.d/70-apt-cacher-ng
+        - root/etc/services.d/apt-cacher-ng/run
+        - root/etc/services.d/cron/run
+        - root/usr/share/keyrings/just-containers.gpg
+
+  # ARM64 image
+  - image_templates:
+      # GHCR Images
+      - 'ghcr.io/tprasadtp/{{ .ProjectName }}:{{ .Version }}-arm64'
+      - 'ghcr.io/tprasadtp/{{ .ProjectName }}:{{ .FullCommit }}-arm64'
+
+    build_flag_templates:
+      - --build-arg=VERSION={{ .Version }}
+      - --label=org.opencontainers.image.created={{.Date}}
+      - --label=org.opencontainers.image.revision={{.FullCommit}}
+      - --label=org.opencontainers.image.version={{.Version}}
+      # Vendor
+      - --label=org.opencontainers.image.vendor="Prasad Tengse <tprasadtp@users.noreply.github.com>"
+      # Populated from Makefile Env
+      # We do not use GitURL because it might be SSH.
+      - --label=org.opencontainers.image.source={{.Env.PROJECT_SOURCE}}
+      - --label=org.opencontainers.image.title={{.Env.PROJECT_TITLE}}
+      - --label=org.opencontainers.image.description={{.Env.PROJECT_DESC}}
+      - --label=org.opencontainers.image.documentation={{.Env.PROJECT_URL}}
+      - --label=org.opencontainers.image.licenses={{.Env.PROJECT_LICENSE}}
+      - --label=org.opencontainers.image.url={{.Env.DOCKER_IMAGE_URL}}
+      # Custom Metadata
+      - --label=io.github.tprasadtp.metadata.version=6
+      # Build system Info. Useful to trace flaky builds on build machines
+      - --label=io.github.tprasadtp.metadata.build.system={{.Env.BUILD_SYSTEM }}-release
+      - --label=io.github.tprasadtp.metadata.build.number={{.Env.BUILD_NUMBER }}
+      - --label=io.github.tprasadtp.metadata.build.host={{.Env.BUILD_HOST }}
+      # Git Info
+      - --label=io.github.tprasadtp.metadata.git.commit={{.FullCommit}}
+      - --label=io.github.tprasadtp.metadata.git.branch={{.Branch }}
+      - --label=io.github.tprasadtp.metadata.git.treeState={{.Env.GIT_TREE_STATE}}
+      # Platform
+      - --platform=linux/arm64
+
+    # Import defaults
+    <<: *docker_defaults
+
+  # ARM 32 Bit image
+  - image_templates:
+      # GHCR Images
+      - 'ghcr.io/tprasadtp/{{ .ProjectName }}:{{ .Version }}-arm'
+      - 'ghcr.io/tprasadtp/{{ .ProjectName }}:{{ .FullCommit }}-arm'
+
+    build_flag_templates:
+      - --build-arg=VERSION={{ .Version }}
+      - --label=org.opencontainers.image.created={{.Date}}
+      - --label=org.opencontainers.image.revision={{.FullCommit}}
+      - --label=org.opencontainers.image.version={{.Version}}
+      # Vendor
+      - --label=org.opencontainers.image.vendor="Prasad Tengse <tprasadtp@users.noreply.github.com>"
+      # Populated from Makefile Env
+      # We do not use GitURL because it might be SSH.
+      - --label=org.opencontainers.image.source={{.Env.PROJECT_SOURCE}}
+      - --label=org.opencontainers.image.title={{.Env.PROJECT_TITLE}}
+      - --label=org.opencontainers.image.description={{.Env.PROJECT_DESC}}
+      - --label=org.opencontainers.image.documentation={{.Env.PROJECT_URL}}
+      - --label=org.opencontainers.image.licenses={{.Env.PROJECT_LICENSE}}
+      - --label=org.opencontainers.image.url={{.Env.DOCKER_IMAGE_URL}}
+      # Custom Metadata
+      - --label=io.github.tprasadtp.metadata.version=6
+      # Build system Info. Useful to trace flaky builds on build machines
+      - --label=io.github.tprasadtp.metadata.build.system={{.Env.BUILD_SYSTEM }}-release
+      - --label=io.github.tprasadtp.metadata.build.number={{.Env.BUILD_NUMBER }}
+      - --label=io.github.tprasadtp.metadata.build.host={{.Env.BUILD_HOST }}
+      # Git Info
+      - --label=io.github.tprasadtp.metadata.git.commit={{.FullCommit}}
+      - --label=io.github.tprasadtp.metadata.git.branch={{.Branch }}
+      - --label=io.github.tprasadtp.metadata.git.treeState={{.Env.GIT_TREE_STATE}}
+      # Platform
+      - --platform=linux/arm
+
+    # Import defaults
+    <<: *docker_defaults
+
+# # Build manifests
+docker_manifests:
+  # Full Version
+  - name_template: 'ghcr.io/tprasadtp/{{.ProjectName}}:{{ .Version }}'
+    image_templates:
+    - 'ghcr.io/tprasadtp/{{.ProjectName}}:{{ .Version }}-amd64'
+    - 'ghcr.io/tprasadtp/{{.ProjectName}}:{{ .Version }}-arm64'
+    - 'ghcr.io/tprasadtp/{{.ProjectName}}:{{ .Version }}-arm'
+
+  # MAJOR.MINOR
+  - name_template: 'ghcr.io/tprasadtp/{{.ProjectName}}:{{ .Major }}.{{ .Minor }}{{ if .Prerelease }}-unstable{{ end }}'
+    image_templates:
+    - 'ghcr.io/tprasadtp/{{.ProjectName}}:{{ .Version }}-amd64'
+    - 'ghcr.io/tprasadtp/{{.ProjectName}}:{{ .Version }}-arm64'
+    - 'ghcr.io/tprasadtp/{{.ProjectName}}:{{ .Version }}-arm'
+
+  # Commit SHA
+  - name_template: 'ghcr.io/tprasadtp/{{.ProjectName}}:{{ .FullCommit }}'
+    image_templates:
+     - 'ghcr.io/tprasadtp/{{ .ProjectName }}:{{ .FullCommit }}-amd64'
+     - 'ghcr.io/tprasadtp/{{ .ProjectName }}:{{ .FullCommit }}-arm64'
+     - 'ghcr.io/tprasadtp/{{ .ProjectName }}:{{ .FullCommit }}-arm'
+
+  # Latest
+  - name_template: 'ghcr.io/tprasadtp/{{.ProjectName}}:{{ if .Prerelease }}unstable{{else}}latest{{ end }}'
+    image_templates:
+    - 'ghcr.io/tprasadtp/{{.ProjectName}}:{{ .Version }}-amd64'
+    - 'ghcr.io/tprasadtp/{{.ProjectName}}:{{ .Version }}-arm64'
+    - 'ghcr.io/tprasadtp/{{.ProjectName}}:{{ .Version }}-arm'
+
+# Github Releases
+release:
+  prerelease: auto

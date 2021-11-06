@@ -1,0 +1,79 @@
+name: release
+on:
+  push:
+    tags:
+      - "*"
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Make Variables for Debugging
+        run: |
+          make show-vars-base
+          make show-vars-docker
+
+      - name: Build Image
+        run: make docker
+
+      - name: Run Trivy vulnerability scanner
+        id: trivy
+        uses: aquasecurity/trivy-action@0.0.19
+        with:
+          scan-type: 'image'
+          vuln-type: os
+          severity: HIGH,CRITICAL
+          ignore-unfixed: true
+          exit-code: 1
+          image-ref: 'ghcr.io/tprasadtp/protonvpn:${{ github.sha }}-DEV'
+          cache-dir: .trivy
+
+      - name: Correct Trivy cache permissions
+        run: sudo chown -R $USER:$GROUP .trivy
+        if: always()
+
+  goreleaser:
+    needs: [checks]
+    permissions:
+      # For creating releases
+      contents: write
+      # For milestone management
+      repository-projects: write
+
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Make Variables for Debugging
+        run: |
+          make show-vars-base
+          make show-vars-docker
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Install GoReleaser
+        uses: goreleaser/goreleaser-action@5df302e5e9e4c66310a6b6493a8865b12c555af2
+        with:
+          version: latest
+          install-only: true
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Run GoReleaser
+        run: make release-prod
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

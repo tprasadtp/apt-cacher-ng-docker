@@ -1,0 +1,3 @@
+#!/usr/bin/with-contenv bash
+# shellcheck shell=bash
+exec s6-setuidgid apt-cacher-ng /usr/sbin/apt-cacher-ng SocketPath=/var/run/apt-cacher-ng/socket -c /etc/apt-cacher-ng ForeGround=1

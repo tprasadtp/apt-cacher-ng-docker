@@ -1,0 +1,60 @@
+name: build
+on:
+  push:
+    branches:
+      - "*"
+  pull_request:
+jobs:
+  # Lint Dockerfile
+  docker-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Lint
+        run: |
+          make show-vars-base
+          make docker-lint
+  # Build docker images
+  docker:
+    needs: [docker-lint]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Make Variables for Debugging
+        run: |
+          make show-vars-base || true
+          make show-vars-docker || true
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Install GoReleaser
+        uses: goreleaser/goreleaser-action@5df302e5e9e4c66310a6b6493a8865b12c555af2
+        with:
+          version: latest
+          install-only: true
+
+      - name: Build snapshot
+        run: make snapshot
+
+      - name: Run Trivy vulnerability scanner
+        id: trivy
+        uses: aquasecurity/trivy-action@0.0.19
+        with:
+          scan-type: 'image'
+          vuln-type: os
+          severity: HIGH,CRITICAL
+          ignore-unfixed: true
+          exit-code: 1
+          image-ref: 'ghcr.io/tprasadtp/protonvpn:${{ github.sha }}-amd64'
+          cache-dir: .trivy
+
+      - name: Correct Trivy cache permissions
+        run: sudo chown -R $USER:$GROUP .trivy
+        if: always()
