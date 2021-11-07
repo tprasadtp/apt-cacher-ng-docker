@@ -5,22 +5,16 @@ on:
       - "*"
   pull_request:
 jobs:
-  # Lint Dockerfile
-  docker-lint:
+  # Build docker images
+  docker:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
 
-      - name: Lint
+      - name: Lint Dockerfile
         run: |
           make show-vars-base
           make docker-lint
-  # Build docker images
-  docker:
-    needs: [docker-lint]
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
 
       - name: Make Variables for Debugging
         run: |
@@ -45,14 +39,14 @@ jobs:
 
       - name: Run Trivy vulnerability scanner
         id: trivy
-        uses: aquasecurity/trivy-action@0.0.19
+        uses: aquasecurity/trivy-action@1ccef265f594a7555a720f623a461a3d69b45bf7
         with:
           scan-type: 'image'
           vuln-type: os
           severity: HIGH,CRITICAL
           ignore-unfixed: true
           exit-code: 1
-          image-ref: 'ghcr.io/tprasadtp/protonvpn:${{ github.sha }}-amd64'
+          image-ref: 'ghcr.io/tprasadtp/apt-cacher-ng:${{ github.sha }}-amd64'
           cache-dir: .trivy
 
       - name: Correct Trivy cache permissions

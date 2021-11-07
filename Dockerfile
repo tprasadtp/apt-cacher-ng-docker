@@ -3,44 +3,24 @@
 FROM ubuntu:focal-20211006 as upstream
 FROM upstream as base
 
-ARG VERSION="v0.0.0"
-ENV VERSION="${VERSION}"
-
-# Overlay defaults
-ENV S6_BEHAVIOUR_IF_STAGE2_FAILS=2 \
-    S6_CMD_WAIT_FOR_SERVICES=1 \
-    S6_KILL_GRACETIME=10000
-
-# Proton defaults
-ENV PROTONVPN_DNS_LEAK_PROTECT=1 \
-    PROTONVPN_PROTOCOL=udp \
-    PROTONVPN_EXCLUDE_CIDRS="169.254.169.254/32,169.254.170.2/32" \
-    PROTONVPN_CHECK_INTERVAL=60 \
-    PROTONVPN_FAIL_THRESHOLD=3 \
-    PROTONVPN_IPCHECK_ENDPOINT="https://ip.prasadt.workers.dev/"
-
-ARG S6_OVERLAY_VERSION="2.2.0.3"
-
-RUN rm -f /etc/apt/apt.conf.d/docker-clean \
-    && echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' > /etc/apt/apt.conf.d/buildkit-cache
+RUN rm -f /etc/apt/apt.conf.d/docker-clean
 
 # Copy GPG Keys
 COPY --chown=root:root --chmod=0644 root/usr/share/keyrings/ /usr/share/keyrings/
 
-# Install Packages
+# Install Base packages common for all ubuntu images
 # hadolint ignore=DL3008,DL3009
-RUN --mount=type=tmpfs,target=/downloads/ \
-    --mount=type=tmpfs,target=/var/lib/apt \
+RUN --mount=type=tmpfs,target=/var/lib/apt \
     --mount=type=cache,sharing=private,target=/var/cache/apt \
     apt-get update \
     && apt-get install --no-install-recommends --yes \
     curl \
-    ca-certificates \
     htop \
-    apt-cacher-ng \
-    cron \
-    && update-ca-certificates --fresh \
-    && ARCH="$(uname -m)" \
+    ca-certificates
+ARG S6_OVERLAY_VERSION="2.2.0.3"
+
+RUN --mount=type=tmpfs,target=/downloads/ \
+    ARCH="$(uname -m)" \
     && export ARCH \
     && if [ "$ARCH" = "x86_64" ]; then \
     S6_ARCH="amd64"; \
@@ -59,7 +39,24 @@ RUN --mount=type=tmpfs,target=/downloads/ \
     && chmod +x /downloads/s6-overlay-installer \
     && /downloads/s6-overlay-installer /
 
-RUN /bin/bash -eo pipefail -c 'printf "## DOCKER MOD ##\nPassThroughPattern: .*\nVerboseLog: 1\nPort:3142\nForeground: 1" | tee -a /etc/apt-cacher-ng/acng.conf'
+# Install Packages
+# hadolint ignore=DL3008,DL3009
+RUN --mount=type=tmpfs,target=/var/lib/apt \
+    --mount=type=cache,sharing=private,target=/var/cache/apt \
+    apt-get update \
+    && apt-get install --no-install-recommends --yes \
+    apt-cacher-ng \
+    cron \
+    logrotate
+
+EXPOSE 3142/tcp
+
+# Tweak apt-cacher-ng config for docker
+RUN echo "## DOCKER MOD ##" >> /etc/apt-cacher-ng/acng.conf \
+    && echo "PassThroughPattern: .*" >> /etc/apt-cacher-ng/acng.conf \
+    && sed -i "s/# ReuseConnections: 1/ReuseConnections: 1/g" /etc/apt-cacher-ng/acng.conf \
+    && sed -i "s#size 10M#size 100M#g" /etc/logrotate.d/apt-cacher-ng
+
 COPY --chown=root:root --chmod=0755 root/etc /etc
 COPY --chown=root:root --chmod=0755 root/usr/bin /usr/bin
 

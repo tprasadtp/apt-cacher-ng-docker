@@ -1,2 +1,2 @@
 #!/bin/bash
-wget -q -t1 -O /dev/null  http://localhost/acng-report.html || exit 1
+curl -sf -o /dev/null http://localhost:3142/acng-report.html || exit 1

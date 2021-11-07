@@ -24,11 +24,6 @@ indent_size = 2
 indent_size = 4
 indent_style = space
 
-# Shellscript
-[{*.sh,*.bash,*.zsh}]
-indent_size = 4
-indent_style = space
-
 # Go
 # https://golang.org/cmd/gofmt/
 [{go.mod,go.sum,*.go}]

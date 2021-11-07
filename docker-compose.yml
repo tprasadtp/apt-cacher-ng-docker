@@ -1,0 +1,59 @@
+version: "2.3"
+services:
+  apt-cache:
+    hostname: apt-cacher-ng
+    restart: unless-stopped
+    image: ghcr.io/tprasadtp/apt-cacher-ng:49d61e5-dev
+    networks:
+      cache:
+        ipv4_address: 10.222.222.222
+    restart: unless-stopped
+    volumes:
+      - apt_cache_store:/var/cache/apt-cacher-ng
+      - apt_cache_logs:/var/log/apt-cacher-ng
+    tmpfs:
+      - /var/run/apt-cacher-ng
+      - /tmp
+    healthcheck:
+      test:
+        - CMD
+        - /usr/bin/healthcheck
+      interval: 90s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+    # Resource sontraints
+    cpu_count: 1
+    cpu_percent: 80
+    mem_limit: 100m
+    memswap_limit: 200m
+    # Labels for auto cleanup scripts
+    labels:
+      io.github.tprasadtp.metadata.spinner.clean.level: "2"
+      io.github.tprasadtp.metadata.spinner.clean.auto: "false"
+      io.github.tprasadtp.metadata.spinner.runclass: "cache"
+      io.github.tprasadtp.metadata.spinner.project: "sysadmin"
+networks:
+  cache:
+    labels:
+      io.github.tprasadtp.metadata.spinner.clean.level: "2"
+      io.github.tprasadtp.metadata.spinner.clean.auto: "false"
+      io.github.tprasadtp.metadata.spinner.runclass: "cache"
+      io.github.tprasadtp.metadata.spinner.project: "sysadmin"
+    ipam:
+      driver: default
+      config:
+        - subnet: 10.222.222.0/24
+volumes:
+  apt_cache_store:
+    labels:
+      io.github.tprasadtp.metadata.spinner.clean.level: "2"
+      io.github.tprasadtp.metadata.spinner.clean.auto: "false"
+      io.github.tprasadtp.metadata.spinner.runclass: "cache"
+      io.github.tprasadtp.metadata.spinner.project: "sysadmin"
+  apt_cache_logs:
+    labels:
+      io.github.tprasadtp.metadata.spinner.clean.level: "2"
+      io.github.tprasadtp.metadata.spinner.clean.auto: "false"
+      io.github.tprasadtp.metadata.spinner.runclass: "cache"
+      io.github.tprasadtp.metadata.spinner.project: "sysadmin"

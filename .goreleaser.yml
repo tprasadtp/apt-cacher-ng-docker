@@ -17,7 +17,6 @@ dockers:
       - 'ghcr.io/tprasadtp/{{ .ProjectName }}:{{ .FullCommit }}-amd64'
 
     build_flag_templates:
-      - --build-arg=VERSION={{ .Version }}
       - --label=org.opencontainers.image.created={{.Date}}
       - --label=org.opencontainers.image.revision={{.FullCommit}}
       - --label=org.opencontainers.image.version={{.Version}}
@@ -61,7 +60,6 @@ dockers:
       - 'ghcr.io/tprasadtp/{{ .ProjectName }}:{{ .FullCommit }}-arm64'
 
     build_flag_templates:
-      - --build-arg=VERSION={{ .Version }}
       - --label=org.opencontainers.image.created={{.Date}}
       - --label=org.opencontainers.image.revision={{.FullCommit}}
       - --label=org.opencontainers.image.version={{.Version}}
@@ -98,7 +96,6 @@ dockers:
       - 'ghcr.io/tprasadtp/{{ .ProjectName }}:{{ .FullCommit }}-arm'
 
     build_flag_templates:
-      - --build-arg=VERSION={{ .Version }}
       - --label=org.opencontainers.image.created={{.Date}}
       - --label=org.opencontainers.image.revision={{.FullCommit}}
       - --label=org.opencontainers.image.version={{.Version}}
