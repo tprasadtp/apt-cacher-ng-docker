@@ -36,10 +36,8 @@ jobs:
   goreleaser:
     needs: [checks]
     permissions:
-      # For creating releases
       contents: write
-      # For milestone management
-      repository-projects: write
+      packages: write
 
     runs-on: ubuntu-latest
     steps:
