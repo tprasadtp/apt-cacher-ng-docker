@@ -3,7 +3,7 @@ services:
   apt-cache:
     hostname: apt-cacher-ng
     restart: unless-stopped
-    image: ghcr.io/tprasadtp/apt-cacher-ng:49d61e5-dev
+    image: ghcr.io/tprasadtp/apt-cacher-ng:latest
     networks:
       cache:
         ipv4_address: 10.222.222.222
