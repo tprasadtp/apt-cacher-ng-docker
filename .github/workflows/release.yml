@@ -19,14 +19,14 @@ jobs:
 
       - name: Run Trivy vulnerability scanner
         id: trivy
-        uses: aquasecurity/trivy-action@0.0.19
+        uses: aquasecurity/trivy-action@1ccef265f594a7555a720f623a461a3d69b45bf7
         with:
           scan-type: 'image'
           vuln-type: os
           severity: HIGH,CRITICAL
           ignore-unfixed: true
           exit-code: 1
-          image-ref: 'ghcr.io/tprasadtp/apt-cacher-ng:${{ github.sha }}-DEV'
+          image-ref: 'ghcr.io/tprasadtp/apt-cacher-ng:${{ github.sha }}-dev'
           cache-dir: .trivy
 
       - name: Correct Trivy cache permissions
