@@ -1,0 +1,5 @@
+#!/bin/sh
+# shellcheck shell=sh
+set -e
+echo "Adding CAP_NET_BIND_SERVICE to binary..."
+setcap CAP_NET_BIND_SERVICE=+eip /usr/sbin/apt-cacher-ng

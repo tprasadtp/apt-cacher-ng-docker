@@ -3,7 +3,7 @@ project_name: apt-cacher-ng
 
 # Snapshot Template
 snapshot:
-  name_template: "{{.ShortCommit}}-dev"
+  name_template: "{{.FullCommit}}-dev"
 
 # Skip builds
 builds:
@@ -13,8 +13,8 @@ dockers:
   # amd64 image
   - image_templates:
       # GHCR Images
-      - 'ghcr.io/tprasadtp/{{ .ProjectName }}:{{ .Version }}-amd64'
-      - 'ghcr.io/tprasadtp/{{ .ProjectName }}:{{ .FullCommit }}-amd64'
+      - 'ghcr.io/tprasadtp/{{.ProjectName}}:{{.Version}}-amd64'
+      - 'ghcr.io/tprasadtp/{{.ProjectName}}:{{.FullCommit}}-amd64'
 
     build_flag_templates:
       - --label=org.opencontainers.image.created={{.Date}}
@@ -48,6 +48,7 @@ dockers:
       use: buildx
       extra_files:
         - root/usr/bin/healthcheck
+        - root/etc/cont-init.d/70-apt-cacher-ng-port
         - root/etc/fix-attrs.d/70-apt-cacher-ng
         - root/etc/services.d/apt-cacher-ng/run
         - root/etc/services.d/cron/run
@@ -56,8 +57,8 @@ dockers:
   # ARM64 image
   - image_templates:
       # GHCR Images
-      - 'ghcr.io/tprasadtp/{{ .ProjectName }}:{{ .Version }}-arm64'
-      - 'ghcr.io/tprasadtp/{{ .ProjectName }}:{{ .FullCommit }}-arm64'
+      - 'ghcr.io/tprasadtp/{{.ProjectName}}:{{.Version}}-arm64'
+      - 'ghcr.io/tprasadtp/{{.ProjectName}}:{{.FullCommit}}-arm64'
 
     build_flag_templates:
       - --label=org.opencontainers.image.created={{.Date}}
@@ -92,8 +93,9 @@ dockers:
   # ARM 32 Bit image
   - image_templates:
       # GHCR Images
-      - 'ghcr.io/tprasadtp/{{ .ProjectName }}:{{ .Version }}-arm'
-      - 'ghcr.io/tprasadtp/{{ .ProjectName }}:{{ .FullCommit }}-arm'
+      - 'ghcr.io/tprasadtp/{{.ProjectName}}:{{.Version}}-arm'
+      - 'ghcr.io/tprasadtp/{{.ProjectName}}:{{.FullCommit}}-arm'
+
 
     build_flag_templates:
       - --label=org.opencontainers.image.created={{.Date}}
@@ -128,32 +130,32 @@ dockers:
 # # Build manifests
 docker_manifests:
   # Full Version
-  - name_template: 'ghcr.io/tprasadtp/{{.ProjectName}}:{{ .Version }}'
+  - name_template: 'ghcr.io/tprasadtp/{{.ProjectName}}:{{.Version}}'
     image_templates:
-    - 'ghcr.io/tprasadtp/{{.ProjectName}}:{{ .Version }}-amd64'
-    - 'ghcr.io/tprasadtp/{{.ProjectName}}:{{ .Version }}-arm64'
-    - 'ghcr.io/tprasadtp/{{.ProjectName}}:{{ .Version }}-arm'
+    - 'ghcr.io/tprasadtp/{{.ProjectName}}:{{.Version}}-amd64'
+    - 'ghcr.io/tprasadtp/{{.ProjectName}}:{{.Version}}-arm64'
+    - 'ghcr.io/tprasadtp/{{.ProjectName}}:{{.Version}}-arm'
 
   # MAJOR.MINOR
-  - name_template: 'ghcr.io/tprasadtp/{{.ProjectName}}:{{ .Major }}.{{ .Minor }}{{ if .Prerelease }}-unstable{{ end }}'
+  - name_template: 'ghcr.io/tprasadtp/{{.ProjectName}}:{{.Major}}.{{.Minor}}{{ if .Prerelease }}-unstable{{end}}'
     image_templates:
-    - 'ghcr.io/tprasadtp/{{.ProjectName}}:{{ .Version }}-amd64'
-    - 'ghcr.io/tprasadtp/{{.ProjectName}}:{{ .Version }}-arm64'
-    - 'ghcr.io/tprasadtp/{{.ProjectName}}:{{ .Version }}-arm'
+    - 'ghcr.io/tprasadtp/{{.ProjectName}}:{{.Version}}-amd64'
+    - 'ghcr.io/tprasadtp/{{.ProjectName}}:{{.Version}}-arm64'
+    - 'ghcr.io/tprasadtp/{{.ProjectName}}:{{.Version}}-arm'
 
   # Commit SHA
-  - name_template: 'ghcr.io/tprasadtp/{{.ProjectName}}:{{ .FullCommit }}'
+  - name_template: 'ghcr.io/tprasadtp/{{.ProjectName}}:{{.FullCommit}}'
     image_templates:
-     - 'ghcr.io/tprasadtp/{{ .ProjectName }}:{{ .FullCommit }}-amd64'
-     - 'ghcr.io/tprasadtp/{{ .ProjectName }}:{{ .FullCommit }}-arm64'
-     - 'ghcr.io/tprasadtp/{{ .ProjectName }}:{{ .FullCommit }}-arm'
+     - 'ghcr.io/tprasadtp/{{.ProjectName}}:{{.FullCommit}}-amd64'
+     - 'ghcr.io/tprasadtp/{{.ProjectName}}:{{.FullCommit}}-arm64'
+     - 'ghcr.io/tprasadtp/{{.ProjectName}}:{{.FullCommit}}-arm'
 
-  # Latest
-  - name_template: 'ghcr.io/tprasadtp/{{.ProjectName}}:{{ if .Prerelease }}unstable{{else}}latest{{ end }}'
+  # latest/unstable/dev
+  - name_template: 'ghcr.io/tprasadtp/{{.ProjectName}}:{{if .IsSnapshot}}dev{{else}}{{if .Prerelease}}unstable{{else}}latest{{end}}{{end}}'
     image_templates:
-    - 'ghcr.io/tprasadtp/{{.ProjectName}}:{{ .Version }}-amd64'
-    - 'ghcr.io/tprasadtp/{{.ProjectName}}:{{ .Version }}-arm64'
-    - 'ghcr.io/tprasadtp/{{.ProjectName}}:{{ .Version }}-arm'
+    - 'ghcr.io/tprasadtp/{{.ProjectName}}:{{.Version}}-amd64'
+    - 'ghcr.io/tprasadtp/{{.ProjectName}}:{{.Version}}-arm64'
+    - 'ghcr.io/tprasadtp/{{.ProjectName}}:{{.Version}}-arm'
 
 # Github Releases
 release:

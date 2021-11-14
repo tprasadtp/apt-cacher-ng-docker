@@ -17,6 +17,18 @@ jobs:
       - name: Build Image
         run: make docker
 
+      - name: Smoke test
+        run: |
+          echo "Modify docker compose to run current build"
+          sed -i "s/ghcr.io\/tprasadtp\/apt-cacher-ng:latest/ghcr.io\/tprasadtp\/apt-cacher-ng:dev/g" docker-compose.yml
+          docker-compose -p apt-cacher-ng -f docker-compose.yml up -d
+          echo "Test if Proxy works"
+          docker run --rm --network=apt-cacher-ng_cache \
+            ubuntu:focal bash -c \
+            'printf "Acquire::HTTP::Proxy \"http://10.222.222.222\";\nAcquire::HTTPS::Proxy \"false\";" > /etc/apt/apt.conf.d/01-buildtime-proxy && apt-get update'
+          echo "Teardown"
+          docker-compose -p apt-cacher-ng -f docker-compose.yml down
+
       - uses: actions/cache@v2
         with:
           path: .trivy
@@ -26,7 +38,7 @@ jobs:
 
       - name: Run Trivy vulnerability scanner
         id: trivy
-        uses: aquasecurity/trivy-action@1ccef265f594a7555a720f623a461a3d69b45bf7
+        uses: aquasecurity/trivy-action@2a2157eb22c08c9a1fac99263430307b8d1bc7a2
         with:
           scan-type: 'image'
           vuln-type: os

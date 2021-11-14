@@ -39,6 +39,8 @@ RUN --mount=type=tmpfs,target=/downloads/ \
     && chmod +x /downloads/s6-overlay-installer \
     && /downloads/s6-overlay-installer /
 
+ENV S6_BEHAVIOUR_IF_STAGE2_FAILS=2
+
 # Install Packages
 # hadolint ignore=DL3008,DL3009
 RUN --mount=type=tmpfs,target=/var/lib/apt \
@@ -46,16 +48,18 @@ RUN --mount=type=tmpfs,target=/var/lib/apt \
     apt-get update \
     && apt-get install --no-install-recommends --yes \
     apt-cacher-ng \
+    libcap2-bin \
     cron \
     logrotate
 
-EXPOSE 3142/tcp
+EXPOSE 80/tcp
 
 # Tweak apt-cacher-ng config for docker
 RUN echo "## DOCKER MOD ##" >> /etc/apt-cacher-ng/acng.conf \
     && echo "PassThroughPattern: .*" >> /etc/apt-cacher-ng/acng.conf \
     && sed -i "s/# ReuseConnections: 1/ReuseConnections: 1/g" /etc/apt-cacher-ng/acng.conf \
-    && sed -i "s#size 10M#size 100M#g" /etc/logrotate.d/apt-cacher-ng
+    && sed -i "s/# Port:3142/Port: 80/g" /etc/apt-cacher-ng/acng.conf \
+    && sed -i "s#size 10M#size 20M#g" /etc/logrotate.d/apt-cacher-ng
 
 COPY --chown=root:root --chmod=0755 root/etc /etc
 COPY --chown=root:root --chmod=0755 root/usr/bin /usr/bin

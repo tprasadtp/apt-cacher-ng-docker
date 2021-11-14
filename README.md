@@ -47,7 +47,7 @@ Please change IP address/host of your apt-cacher-ng accordingly.
       ```hcl
         provisioner "shell" {
           inline = [
-            "printf 'Acquire::HTTP::Proxy \"http://10.222.222.222:3142\";\nAcquire::HTTPS::Proxy \"false\";' > /etc/apt/apt.conf.d/01-buildtime-proxy",
+            "printf 'Acquire::HTTP::Proxy \"http://10.222.222.222\";\nAcquire::HTTPS::Proxy \"false\";' > /etc/apt/apt.conf.d/01-buildtime-proxy",
           ]
         }
       ```
@@ -63,19 +63,19 @@ Please change IP address/host of your apt-cacher-ng accordingly.
           ]
         }
       ```
-  Do note however this requires the packer instance to have has access to apt-cacher-ng running at, `http://10.222.222.222:3142`. This is mostly the case for chroot, docker and qemu builders running on the same host.
+  Do note however this requires the packer instance to have has access to apt-cacher-ng running at, `http://10.222.222.222`. This is mostly the case for chroot, docker and qemu builders running on the same host.
 
 - For Vagrant insert snippet below in your ```Vagrant.configure``` block before you invoke any apt commands.
 
   ```ruby
     $apt_proxy = <<-SCRIPT
-    printf "Acquire::HTTP::Proxy \"http://10.222.222.222:3142\";\nAcquire::HTTPS::Proxy \"false\";" > /etc/apt/apt.conf.d/01-buildtime-proxy"
+    printf "Acquire::HTTP::Proxy \"http://10.222.222.222\";\nAcquire::HTTPS::Proxy \"false\";" > /etc/apt/apt.conf.d/01-buildtime-proxy"
     SCRIPT
     # Run this before any other provisioners which access apt
     config.vm.provision "shell", inline: $apt_proxy
   ```
 
-- [pi-gen](https://github.com/RPi-Distro/pi-gen) suport is baked in and it takes care of adding and removing apt proxy automagically. Just set your IP in config file,
+- [pi-gen](https://github.com/RPi-Distro/pi-gen) support is baked in and it takes care of adding and removing apt proxy before after image build automagically. Just set your IP in config file,
   ```sh
-  echo 'APT_PROXY=http://10.222.222.222:3142' >> config
+  echo 'APT_PROXY=http://10.222.222.222' >> config
   ```

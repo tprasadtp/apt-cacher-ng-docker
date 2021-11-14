@@ -1,3 +1,4 @@
 #!/usr/bin/execlineb -P
 # shellcheck shell=bash
-s6-setuidgid apt-cacher-ng /usr/sbin/apt-cacher-ng SocketPath=/var/run/apt-cacher-ng/socket -c /etc/apt-cacher-ng ForeGround=1
+s6-setuidgid apt-cacher-ng
+/usr/sbin/apt-cacher-ng SocketPath=/var/run/apt-cacher-ng/socket -c /etc/apt-cacher-ng ForeGround=1
