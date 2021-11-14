@@ -40,7 +40,7 @@ jobs:
       - name: Smoke test
         run: |
           echo "Modify docker compose to run current build"
-          sed -i "s/ghcr.io\/tprasadtp\/apt-cacher-ng:latest/ghcr.io\/tprasadtp\/apt-cacher-ng:dev/g" docker-compose.yml
+          sed -i "s/ghcr.io\/tprasadtp\/apt-cacher-ng:latest/ghcr.io\/tprasadtp\/apt-cacher-ng:${GITHUB_SHA}-dev-amd64/g" docker-compose.yml
           docker-compose -p apt-cacher-ng -f docker-compose.yml up -d
           echo "Test if Proxy works"
           docker run --rm --network=apt-cacher-ng_cache \
