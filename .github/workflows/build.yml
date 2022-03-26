@@ -49,7 +49,7 @@ jobs:
           echo "Teardown"
           docker-compose -p apt-cacher-ng -f docker-compose.yml down
 
-      - uses: actions/cache@v2
+      - uses: actions/cache@v3
         with:
           path: .trivy
           key: ${{ runner.os }}-trivy-${{ github.run_id }}
